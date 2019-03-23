@@ -17,7 +17,7 @@ func init(){
     orm.RegisterModel(new(Article))
 }
 
-func GetAll() []*Article {
+func GetAllArticles() []*Article {
   o := orm.NewOrm()
   var articles []*Article
   o.QueryTable(new(Article)).All(&articles)

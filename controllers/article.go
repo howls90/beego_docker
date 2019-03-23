@@ -4,35 +4,53 @@ import (
   "github.com/astaxie/beego"
   "test/models"
   "strconv"
-  "encoding/json"
+  // "fmt"
 )
 
 type ArticleController struct {
   beego.Controller
 }
 
-func (c *ArticleController) All(){
-  c.Data["Articles"] = models.GetAll()
-  c.TplName = "articles/index.tpl"
+func (this *ArticleController) List(){
+  this.Data["Articles"] = models.GetAllArticles()
+  this.Layout = "layout.html"
+  this.TplName = "articles/index.tpl"
+  this.LayoutSections = make(map[string]string)
+  this.LayoutSections["HtmlHead"] = ""
+  this.LayoutSections["Header"] = "layouts/header.tpl"
+  this.LayoutSections["Scripts"] = ""
+  this.LayoutSections["Sidebar"] = ""
+  this.LayoutSections["Footer"] = "layouts/footer.tpl"
 }
-func (c *ArticleController) Add(){
-  // var article models.Article
+
+func (this *ArticleController) Save(){
+  if this.Ctx.Input.Method() == "POST" {
+    var at models.Article
+    at.Title = this.GetString("title")
+    at.Description = this.GetString("description")
+    models.InsertArticle(at)
+
+    flash := beego.NewFlash()
+    flash.Notice("Article saved!")
+    flash.Store(&this.Controller)
+    this.Ctx.Redirect(302, "/articles")
+
+  } else {
+    this.Layout = "layout.html"
+    this.TplName = "articles/save.tpl"
+  }
 }
-func (c *ArticleController) Delete(){
-  id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+
+func (this *ArticleController) Delete(){
+  id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
   models.DeleteArticle(id)
-  c.TplName = "articles/delete.tpl"
+  this.Ctx.Redirect(302, "/articles")
 }
 
-func (c *ArticleController) Show(){
-  id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
-  c.Data["Article"] = models.GetArticle(id)
-  c.TplName = "articles/show.tpl"
+func (this *ArticleController) Show(){
+  id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
+  this.Data["Article"] = models.GetArticle(id)
+  this.Layout = "layout.html"
+  this.TplName = "articles/show.tpl"
 }
 
-func (c *ArticleController) Insert() {
-	var a models.Article
-	json.Unmarshal(c.Ctx.Input.RequestBody, &a)
-  c.Data["Article"] = models.InsertArticle(a)
-  c.TplName = "articles/show.tpl"
-}
