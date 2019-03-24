@@ -2,3 +2,5 @@ test
 logs/*
 tmp/
 .env
+vendor/*
+_vendor*
