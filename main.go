@@ -36,7 +36,7 @@ func main() {
 	// Database alias.
 	name := "default"
 	// Drop table and re-create.
-	force := false
+	force := true
 	verbose := true
 	// Error.
 	err := orm.RunSyncdb(name, force, verbose)

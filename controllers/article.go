@@ -8,19 +8,13 @@ import (
 )
 
 type ArticleController struct {
-  beego.Controller
+  ExtendedController
 }
 
 func (this *ArticleController) List(){
+  beego.ReadFromRequest(&this.Controller)
   this.Data["Articles"] = models.GetAllArticles()
-  this.Layout = "layout.html"
   this.TplName = "articles/index.tpl"
-  this.LayoutSections = make(map[string]string)
-  this.LayoutSections["HtmlHead"] = ""
-  this.LayoutSections["Header"] = "layouts/header.tpl"
-  this.LayoutSections["Scripts"] = ""
-  this.LayoutSections["Sidebar"] = ""
-  this.LayoutSections["Footer"] = "layouts/footer.tpl"
 }
 
 func (this *ArticleController) Save(){
@@ -36,7 +30,6 @@ func (this *ArticleController) Save(){
     this.Ctx.Redirect(302, "/articles")
 
   } else {
-    this.Layout = "layout.html"
     this.TplName = "articles/save.tpl"
   }
 }
@@ -44,13 +37,16 @@ func (this *ArticleController) Save(){
 func (this *ArticleController) Delete(){
   id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
   models.DeleteArticle(id)
+
+  flash := beego.NewFlash()
+  flash.Notice("Article deleted!")
+  flash.Store(&this.Controller)
   this.Ctx.Redirect(302, "/articles")
 }
 
 func (this *ArticleController) Show(){
   id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
   this.Data["Article"] = models.GetArticle(id)
-  this.Layout = "layout.html"
   this.TplName = "articles/show.tpl"
 }
 
