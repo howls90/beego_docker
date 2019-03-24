@@ -3,6 +3,7 @@ package models
 import (
   "github.com/astaxie/beego/orm"
   "time"
+  "fmt"
 )
 
 type Article struct {
@@ -66,4 +67,30 @@ func InsertArticle(article Article) *Article {
 	}
 
   return &a
+}
+
+func UpdateArticle(article Article) *Article {
+	o := orm.NewOrm()
+	oldArticle := Article{Id: article.Id}
+  fmt.Println("dins")
+	// var newArticle Article
+
+	// get existing user
+	// if o.Read(&oldArticle) == nil {
+
+    o.Read(&oldArticle)
+		oldArticle.Title = article.Title
+		oldArticle.Description = article.Description
+		oldArticle.Date = time.Now()
+		_, err := o.Update(&oldArticle)
+
+		// read updated user
+		if err == nil {
+			// update successful
+			// newArticle = Article{Id: article.Id}
+			// o.Read(&newArticle)
+		}
+	// }
+
+	return &oldArticle
 }

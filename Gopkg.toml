@@ -30,10 +30,6 @@
   version = "1.11.1"
 
 [[constraint]]
-  name = "github.com/beego/bee"
-  version = "1.10.0"
-
-[[constraint]]
   name = "github.com/go-sql-driver/mysql"
   version = "1.4.1"
 

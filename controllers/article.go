@@ -50,3 +50,22 @@ func (this *ArticleController) Show(){
   this.TplName = "articles/show.tpl"
 }
 
+func (this *ArticleController) Update(){
+  id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
+  if this.Ctx.Input.Method() == "POST" {
+    var at models.Article
+    at.Id = id
+    at.Title = this.GetString("title")
+    at.Description = this.GetString("description")
+    models.UpdateArticle(at)
+
+    flash := beego.NewFlash()
+    flash.Notice("Article edit!")
+    flash.Store(&this.Controller)
+    this.Ctx.Redirect(302, "/articles")
+
+  } else {
+    this.Data["Article"] = models.GetArticle(id)
+    this.TplName = "articles/edit.tpl"
+  }
+}
