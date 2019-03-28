@@ -22,11 +22,16 @@ func (this *ArticleController) Save(){
     var at models.Article
     at.Title = this.GetString("title")
     at.Description = this.GetString("description")
-    models.InsertArticle(at)
+    res := models.InsertArticle(at)
 
-    flash := beego.NewFlash()
-    flash.Notice("Article saved!")
-    flash.Store(&this.Controller)
+    if (res == true){
+      flash := beego.NewFlash()
+      flash.Notice("Article saved!")
+      flash.Store(&this.Controller)
+    } else {
+      beego.Error("Content bad format!")
+      this.Abort("500")
+    }
     this.Ctx.Redirect(302, "/articles")
 
   } else {
@@ -36,11 +41,16 @@ func (this *ArticleController) Save(){
 
 func (this *ArticleController) Delete(){
   id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-  models.DeleteArticle(id)
+  res := models.DeleteArticle(id)
+  if (res == true){
+    flash := beego.NewFlash()
+    flash.Notice("Article deleted!")
+    flash.Store(&this.Controller)
+  } else {
+    beego.Error("Article not found!")
+    this.Abort("500")
+  }
 
-  flash := beego.NewFlash()
-  flash.Notice("Article deleted!")
-  flash.Store(&this.Controller)
   this.Ctx.Redirect(302, "/articles")
 }
 

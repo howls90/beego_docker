@@ -1,17 +1,25 @@
 package models
 
 import (
+  "github.com/astaxie/beego"
   "github.com/astaxie/beego/orm"
   "time"
-  "fmt"
+  // "github.com/astaxie/beego/validation"
+  // "fmt"
 )
 
 type Article struct {
     Id            int         
     Title         string      `orm:null`
     Description   string      `orm:null`
-    Date          time.Time   `omr:"auto_now_add;type(datetime)"`
+    Created       time.Time   `orm:"auto_now_add;type(datetime)"`
+    Updated       time.Time   `orm:"auto_now;type(datetime)"`
 
+}
+
+type ArticleForm struct{
+  	Title					string			`form:"title" valid:"Required;MinSize(4);MaxSize(300)"`
+  	Description		string			`form:"description" valid:"Required;MinSize(4);MaxSize(10)"`
 }
 
 func init(){
@@ -29,10 +37,17 @@ func DeleteArticle(id int) bool {
   o := orm.NewOrm()
   _, err := o.Delete(&Article{Id: id})
   if err == nil {
-    // successfull
-    return true
+    // successfully delete
+    err := o.Read(&Article{Id: int(id)})
+		if ; err != orm.ErrNoRows {
+      // Obj not found
+			return true
+		}
+    beego.Error(err)
+    return false
   }
 
+  beego.Error(err)
   return false
 }
 
@@ -43,54 +58,51 @@ func GetArticle(id int) *Article {
   return &article
 }
 
-func InsertArticle(article Article) *Article {
+func InsertArticle(article Article) bool {
 	o := orm.NewOrm()
-	qs := o.QueryTable(new(Article))
+  // valid, err := valid.Valid(&article)
+  // if err != nil {
+		// beego.Error(err)
+	// }
+	// if !valid {
+		// for _, err := range valid.Errors {
+  //       beego.Info(err.Key, err.Message)
+  //   }
+	// }
+	id, err := o.Insert(&article)
 
-	// get prepared statement
-	i, _ := qs.PrepareInsert()
-
-	var a Article
-	article.Date = time.Now()
-
-	// Insert
-	id, err := i.Insert(&article)
   if err == nil {
 		// successfully inserted
-		a = Article{Id: int(id)}
-		err := o.Read(&a)
-		if err == orm.ErrNoRows {
-			return nil
+		if err := o.Read(&Article{Id: int(id)}); err == orm.ErrNoRows {
+      // Obj not found
+      beego.Error(err)
+			return false
 		}
-	} else {
-		return nil
+    return true
 	}
 
-  return &a
+  beego.Error(err)
+  return false
 }
 
-func UpdateArticle(article Article) *Article {
+func UpdateArticle(article Article) bool {
 	o := orm.NewOrm()
-	oldArticle := Article{Id: article.Id}
-  fmt.Println("dins")
-	// var newArticle Article
+	a := Article{Id: article.Id}
 
 	// get existing user
-	// if o.Read(&oldArticle) == nil {
+  err := o.Read(&a)
+	if err != orm.ErrNoRows {
+    // Obj found
+		a.Title = article.Title
+		a.Description = article.Description
+		_, err := o.Update(&a)
 
-    o.Read(&oldArticle)
-		oldArticle.Title = article.Title
-		oldArticle.Description = article.Description
-		oldArticle.Date = time.Now()
-		_, err := o.Update(&oldArticle)
-
-		// read updated user
 		if err == nil {
 			// update successful
-			// newArticle = Article{Id: article.Id}
-			// o.Read(&newArticle)
+      return true
 		}
-	// }
+	}
 
-	return &oldArticle
+  beego.Error(err)
+	return false
 }

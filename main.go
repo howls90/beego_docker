@@ -36,15 +36,22 @@ func main() {
 	// Database alias.
 	name := "default"
 	// Drop table and re-create.
+  orm.Debug =true 
 	force := false
 	verbose := true
 	// Error.
 	err := orm.RunSyncdb(name, force, verbose)
 	if err != nil {
-		fmt.Println(err)
-	}
-    // Logs set up
-    beego.SetLogger("file", `{"filename":"logs/test.log"}`)
-  	beego.Run()
+    fmt.Println(err)
+  }
+  // Logs set up
+  beego.SetLogger("file", `{"filename":"logs/test.log"}`)
+  beego.Info("Application runnning!")
+  // cross site request forgery
+  beego.BConfig.WebConfig.EnableXSRF = true
+  beego.BConfig.WebConfig.XSRFKey = os.Getenv("XSRF")
+  beego.BConfig.WebConfig.XSRFExpire = 3600
+  //run app
+  beego.Run()
 }
 

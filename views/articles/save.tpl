@@ -1,4 +1,5 @@
 <form method="POST" action="/articles/save" method="post">
+    {{ .xsrfdata }}
     <label> Title </label>
     <input type="text" name="title"><br />
     <label> Description </label>

@@ -1,4 +1,5 @@
 <form method="POST" action="/articles/{{.Article.Id}}/edit" method="post">
+    {{ .xsrfdata }}
     <label> Title </label>
     <input type="text" name="title" value="{{.Article.Title}}"><br />
     <label> Description </label>
