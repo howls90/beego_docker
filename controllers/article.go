@@ -19,9 +19,10 @@ func (this *ArticleController) List(){
 
 func (this *ArticleController) Save(){
   if this.Ctx.Input.Method() == "POST" {
-    var at models.Article
-    at.Title = this.GetString("title")
-    at.Description = this.GetString("description")
+    at := models.Article{}
+    if err := this.ParseForm(&at); err != nil {
+			beego.Error(err)
+    }
     res := models.InsertArticle(at)
 
     if (res == true){
@@ -63,10 +64,11 @@ func (this *ArticleController) Show(){
 func (this *ArticleController) Update(){
   id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
   if this.Ctx.Input.Method() == "POST" {
-    var at models.Article
-    at.Id = id
-    at.Title = this.GetString("title")
-    at.Description = this.GetString("description")
+    at := models.Article{}
+    if err := this.ParseForm(&at); err != nil {
+			beego.Error(err)
+    }
+    beego.Info(at)
     models.UpdateArticle(at)
 
     flash := beego.NewFlash()

@@ -4,22 +4,16 @@ import (
   "github.com/astaxie/beego"
   "github.com/astaxie/beego/orm"
   "time"
-  // "github.com/astaxie/beego/validation"
+  "github.com/astaxie/beego/validation"
   // "fmt"
 )
 
 type Article struct {
-    Id            int         
-    Title         string      `orm:null`
-    Description   string      `orm:null`
-    Created       time.Time   `orm:"auto_now_add;type(datetime)"`
-    Updated       time.Time   `orm:"auto_now;type(datetime)"`
-
-}
-
-type ArticleForm struct{
-  	Title					string			`form:"title" valid:"Required;MinSize(4);MaxSize(300)"`
-  	Description		string			`form:"description" valid:"Required;MinSize(4);MaxSize(10)"`
+    Id            int         `form:"-"`
+    Title         string      `orm:"size(255)" form:"title"`
+    Description   string      `orm:"size(255)" form:"description"`
+    Created       time.Time   `orm:"auto_now_add;type(datetime)" form:"-"`
+    Updated       time.Time   `orm:"auto_now;type(datetime)" form:"-"`
 }
 
 func init(){
@@ -60,15 +54,18 @@ func GetArticle(id int) *Article {
 
 func InsertArticle(article Article) bool {
 	o := orm.NewOrm()
-  // valid, err := valid.Valid(&article)
-  // if err != nil {
-		// beego.Error(err)
-	// }
-	// if !valid {
-		// for _, err := range valid.Errors {
-  //       beego.Info(err.Key, err.Message)
-  //   }
-	// }
+	//Validation
+  valid := validation.Validation{}
+  res, err := valid.Valid(&article)
+  if err != nil {
+		beego.Error(err)
+	}
+	if !res {
+		for _, err := range valid.Errors {
+        beego.Info(err.Key, err.Message)
+    }
+	}
+	// Save
 	id, err := o.Insert(&article)
 
   if err == nil {
