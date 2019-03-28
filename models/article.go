@@ -4,14 +4,12 @@ import (
   "github.com/astaxie/beego"
   "github.com/astaxie/beego/orm"
   "time"
-  "github.com/astaxie/beego/validation"
-  // "fmt"
 )
 
 type Article struct {
     Id            int         `form:"-"`
-    Title         string      `orm:"size(255)" form:"title"`
-    Description   string      `orm:"size(255)" form:"description"`
+    Title         string      `orm:"size(255)" form:"title" valid:"Required;Range(2, 10)"`
+    Description   string      `orm:"size(255)" form:"description" valid:"Required;Range(2, 10)"`
     Created       time.Time   `orm:"auto_now_add;type(datetime)" form:"-"`
     Updated       time.Time   `orm:"auto_now;type(datetime)" form:"-"`
 }
@@ -33,7 +31,7 @@ func DeleteArticle(id int) bool {
   if err == nil {
     // successfully delete
     err := o.Read(&Article{Id: int(id)})
-		if ; err != orm.ErrNoRows {
+		if err == orm.ErrNoRows {
       // Obj not found
 			return true
 		}
@@ -54,18 +52,6 @@ func GetArticle(id int) *Article {
 
 func InsertArticle(article Article) bool {
 	o := orm.NewOrm()
-	//Validation
-  valid := validation.Validation{}
-  res, err := valid.Valid(&article)
-  if err != nil {
-		beego.Error(err)
-	}
-	if !res {
-		for _, err := range valid.Errors {
-        beego.Info(err.Key, err.Message)
-    }
-	}
-	// Save
 	id, err := o.Insert(&article)
 
   if err == nil {
